@@ -21,7 +21,10 @@ object SetInfoRequest : TokenRequest("/profile/setInfo") {
        val errors = query
             .filter { it.key != DataBase.TOKEN && it.key != CURRENT_PASSWORD }
             .map { (name, value) ->
-                DataBase.setUserField(token, currentPass, name, value)
+                DataBase.setUserField(token, currentPass, name, value).also {
+                    if (it == Error.CURRENT_PASSWORD_NEEDED || it == Error.CURRENT_PASSWORD_WRONG)
+                        return it
+                }
             }
 
         val codes = errors.map { it.code }
