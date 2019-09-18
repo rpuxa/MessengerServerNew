@@ -29,6 +29,8 @@ abstract class Request(val path: String) {
         bufferedReader.close()
         streamReader.close()
 
+        println("Request: $builder")
+
         builder.split('&').forEach {
             if ('=' in it) {
                 val (name, value) = it.split('=')
