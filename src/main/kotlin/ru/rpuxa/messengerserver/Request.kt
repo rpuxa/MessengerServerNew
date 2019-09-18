@@ -18,11 +18,14 @@ abstract class Request(val path: String) {
         val bufferedReader = BufferedReader(streamReader)
 
         val builder = StringBuilder(exchange.requestURI.query ?: "")
-        if (builder.isNotEmpty())
-            builder.append('&')
+        var first = true
         while (true) {
             val b = bufferedReader.read()
             if (b == -1) break
+            if (first) {
+                first = false
+                builder.append('&')
+            }
             builder.append(b.toChar())
         }
 
