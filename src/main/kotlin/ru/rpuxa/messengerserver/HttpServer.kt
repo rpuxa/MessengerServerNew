@@ -25,6 +25,7 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
                 val answer = try {
                     request.execute(it)
                 } catch (e: Exception) {
+                    e.printStackTrace()
                     throw e
                 }
                 if (answer == null) {

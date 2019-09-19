@@ -2,6 +2,8 @@ package ru.rpuxa.messengerserver
 
 import java.io.*
 import java.io.FileInputStream
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 
 object IconStorage {
@@ -20,7 +22,8 @@ object IconStorage {
     }
 
     fun saveAvatar(stream: InputStream, size: Int, id: Int): String {
-        val fileName = "$ICONS_PREFIX/$AVATAR_PREFIX$id.png"
+        val randomNumber = Random.nextUInt()
+        val fileName = "$ICONS_PREFIX/$AVATAR_PREFIX${id}_$randomNumber.png"
 
         save(stream, size, fileName)
 
