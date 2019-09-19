@@ -4,37 +4,14 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.sun.net.httpserver.HttpExchange
 import ru.rpuxa.messengerserver.answers.ErrorAnswer
-import ru.rpuxa.messengerserver.answers.TextErrorAnswer
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 
 abstract class Request(val path: String) {
 
-    fun execute(exchange: HttpExchange): String {
+    open fun execute(exchange: HttpExchange): ByteArray? {
         val map = HashMap<String, String>()
 
-        val streamReader = InputStreamReader(exchange.requestBody, "utf-8")
-        val bufferedReader = BufferedReader(streamReader)
-
-        val builder = StringBuilder(exchange.requestURI.query ?: "")
-        var first = true
-        while (true) {
-            val b = bufferedReader.read()
-            if (b == -1) break
-            if (first) {
-                first = false
-                builder.append('&')
-            }
-            builder.append(b.toChar())
-        }
-
-        bufferedReader.close()
-        streamReader.close()
-
-        println("Request: $builder")
-
-        builder.split('&').forEach {
+        (exchange.requestURI.query ?: "").split('&').forEach {
             if ('=' in it) {
                 val (name, value) = it.split('=')
                 if (name.isNotBlank())
@@ -42,20 +19,26 @@ abstract class Request(val path: String) {
             }
         }
 
-        var onExecute: RequestAnswer = onExecute(map)
-        if (onExecute is Error) {
-            val text = onExecute.text
-            val code = onExecute.code.toString()
-            onExecute = if (text == null) {
-                ErrorAnswer(code)
-            } else {
-                TextErrorAnswer(code, text)
-            }
-        }
-        return gson.toJson(onExecute)
+       return byteArrayAnswer(map, exchange)
     }
 
-    abstract fun onExecute(query: Map<String, String>): RequestAnswer
+    open fun byteArrayAnswer(
+        query: Map<String, String>,
+        exchange: HttpExchange
+    ): ByteArray {
+        var answer: RequestAnswer = requestAnswer(query, exchange)
+        if (answer is Error) {
+            answer = ErrorAnswer(answer.code.toString(), answer.text)
+        }
+        return gson.toJson(answer).toByteArray()
+    }
+
+    open fun requestAnswer(
+        query: Map<String, String>,
+        exchange: HttpExchange
+    ): RequestAnswer {
+        throw UnsupportedOperationException()
+    }
 
     companion object {
         private val gson: Gson = GsonBuilder().create()

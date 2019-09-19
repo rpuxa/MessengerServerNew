@@ -25,14 +25,16 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
                 val answer = try {
                     request.execute(it)
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    "ERROR: ${e.message}"
+                    throw e
                 }
-                val bytes = answer.toByteArray()
-                it.sendResponseHeaders(200, bytes.size.toLong())
-                val os = it.responseBody
-                os.write(bytes)
-                os.close()
+                if (answer == null) {
+                    it.sendResponseHeaders(404, 0)
+                } else {
+                    it.sendResponseHeaders(200, answer.size.toLong())
+                    val os = it.responseBody
+                    os.write(answer)
+                    os.close()
+                }
             }
 
         }
@@ -54,7 +56,9 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
             LoginRequest,
             PrivateInfoRequest,
             PublicInfoRequest,
-            SetInfoRequest
+            SetInfoRequest,
+            SetAvatarRequest,
+            GetIconRequest
         )
     }
 }

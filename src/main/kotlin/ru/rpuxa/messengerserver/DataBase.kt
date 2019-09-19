@@ -20,8 +20,10 @@ object DataBase {
     const val NAME = "name"
     const val SURNAME = "surname"
     const val BIRTHDAY = "birthday"
+    const val AVATAR = "avatar"
 
     private val BIRTHDAY_NOT_INITIALIZED: String? = null
+    private val ICON_NOT_INITIALIZED: String? = null
 
     private lateinit var connection: Connection
     private lateinit var statement: Statement
@@ -34,13 +36,14 @@ object DataBase {
         statement.execute(
             """CREATE TABLE IF NOT EXISTS $USERS_TABLE
 (
-    '$ID'       INTEGER PRIMARY KEY AUTOINCREMENT,
-    '$TOKEN'    TEXT,
-    '$LOGIN'    TEXT,
-    '$PASSWORD'     BLOB,
-    '$NAME'     TEXT,
-    '$SURNAME'  TEXT,
-    '$BIRTHDAY' TEXT
+  '$ID'       INTEGER PRIMARY KEY AUTOINCREMENT,
+  '$TOKEN'    TEXT,
+  '$LOGIN'    TEXT,
+  '$PASSWORD'     BLOB,
+  '$NAME'     TEXT,
+  '$SURNAME'  TEXT,
+  '$BIRTHDAY' TEXT,
+  '$AVATAR'    TEXT
 );"""
         )
     }
@@ -51,7 +54,10 @@ object DataBase {
         val encryptedPass = encrypt(pass)
         val token = randomToken()
 
-        connection.prepareStatement("INSERT INTO users ($TOKEN, $LOGIN, $PASSWORD, $NAME, $SURNAME, $BIRTHDAY) VALUES (?, ?, ?, ?, ?, ?)")
+        connection.prepareStatement(
+            """INSERT INTO users ($TOKEN, $LOGIN, $PASSWORD, $NAME, $SURNAME, $BIRTHDAY, $AVATAR)
+VALUES (?, ?, ?, ?, ?, ?, ?)"""
+        )
             .apply {
                 setString(1, token)
                 setString(2, login)
@@ -59,6 +65,7 @@ object DataBase {
                 setString(4, name)
                 setString(5, surname)
                 setString(6, BIRTHDAY_NOT_INITIALIZED)
+                setString(7, ICON_NOT_INITIALIZED)
                 executeUpdate()
             }
 
@@ -84,7 +91,8 @@ object DataBase {
             set.getString(LOGIN),
             set.getString(NAME),
             set.getString(SURNAME),
-            set.getString(BIRTHDAY)
+            set.getString(BIRTHDAY),
+            set.getString(AVATAR)
         )
     }
 
@@ -96,7 +104,8 @@ object DataBase {
             set.getString(LOGIN),
             set.getString(NAME),
             set.getString(SURNAME),
-            set.getString(BIRTHDAY)
+            set.getString(BIRTHDAY),
+            set.getString(AVATAR)
         )
     }
 
@@ -158,6 +167,15 @@ object DataBase {
         return Error.NO_ERROR
     }
 
+    fun setAvatar(id: Int, link: String) {
+        connection.prepareStatement("UPDATE $USERS_TABLE SET $AVATAR = ? WHERE $ID = ?").apply {
+            setString(1, link)
+            setInt(2, id)
+            executeQuery()
+        }
+    }
+
+    fun getIdByToken(token: String) = userByToken(token)?.getInt(ID)
 
     fun disconnect() {
         try {
@@ -215,5 +233,6 @@ object DataBase {
             append(code.toChar())
         }
     }
+
 
 }

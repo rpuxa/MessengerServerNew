@@ -1,5 +1,6 @@
 package ru.rpuxa.messengerserver.requests
 
+import com.sun.net.httpserver.HttpExchange
 import ru.rpuxa.messengerserver.DataBase
 import ru.rpuxa.messengerserver.Error
 import ru.rpuxa.messengerserver.RequestAnswer
@@ -9,7 +10,11 @@ object SetInfoRequest : TokenRequest("/profile/setInfo") {
 
     private const val CURRENT_PASSWORD = "current_pass"
 
-    override fun onExecuteWithToken(token: String, query: Map<String, String>): RequestAnswer {
+    override fun onExecuteWithToken(
+        token: String,
+        query: Map<String, String>,
+        exchange: HttpExchange
+    ): RequestAnswer {
         var currentPass: String? = null
         for ((k, v) in query) {
             if (k == CURRENT_PASSWORD) {

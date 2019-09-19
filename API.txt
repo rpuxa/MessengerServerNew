@@ -1,0 +1,69 @@
+Почти во всех запросах может вернуться ошибка ввиде
+{error: <код ошибки>}
+или
+{error: <код ошибки>, error_text: Бтекст ошибки>}
+
+Все коды ошибок:
+https://github.com/rpuxa/MessengerServerNew/blob/master/src/main/kotlin/ru/rpuxa/messengerserver/Error.kt
+
+
+===Проверка доступности сервера===
+/welcome
+
+{text: "Welcome to android messenger API!"}
+
+
+
+
+===Регистрация===
+/reg?login&pass&name&surname
+
+{token}
+
+
+
+
+===Логин===
+/login?login&pass
+
+{token}
+
+
+
+
+===Приватная информация профиля===
+/profile/getPrivateInfo?token
+
+{id, login, name, surname, birthday}
+
+
+
+
+===Публичная информация профиля===
+/profile/getPublicInfo?id
+
+{login, name, surname, birthday}
+
+
+
+===Изменить информацию профиля===
+/profile/setInfo?token & current_pass=<текущий пароль, нужен только для логина и пароля> & имя_поля1=значение1 & имя_поля2=значение2...
+
+Имена полей:
+login
+pass
+name
+surname
+birthday
+
+Возвращает
+{errors:[error_code1, error_code2,...], error_texts:[error_code1: error_code_text1, error_code2: error_code_text2,...]}
+
+
+
+===Установить аватар===
+POST!!
+
+/profile/setAvatar?token
+
+{url}

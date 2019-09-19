@@ -6,8 +6,11 @@ import kotlin.system.exitProcess
 const val DEFAULT_IP = "176.57.217.44"
 const val DEFAULT_PORT = 80
 
+var serverIp = DEFAULT_IP
+    private set
+
 fun main(__u: Array<String>) {
-    println("Server running3...")
+    println("Server is running4...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
@@ -16,6 +19,7 @@ fun main(__u: Array<String>) {
         val args = if (commands.size == 1) emptyList() else commands.subList(1, commands.size)
         when (commands.first()) {
             "start" -> {
+                IconStorage.connect()
                 DataBase.connect()
                 Thread(server).start()
             }
@@ -27,9 +31,9 @@ fun main(__u: Array<String>) {
             }
 
             "ip" -> {
-                val ip = args.first()
-                server = HttpServer(ip, DEFAULT_PORT)
-                println("Ip: $ip set")
+                serverIp = args.first()
+                server = HttpServer(serverIp, DEFAULT_PORT)
+                println("Ip: $serverIp set")
             }
 
             "cleardb" -> {
