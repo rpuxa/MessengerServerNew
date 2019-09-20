@@ -171,7 +171,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?)"""
         connection.prepareStatement("UPDATE $USERS_TABLE SET $AVATAR = ? WHERE $ID = ?").apply {
             setString(1, link)
             setInt(2, id)
-            executeQuery()
+            executeUpdate()
         }
     }
 

@@ -9,8 +9,8 @@ const val DEFAULT_PORT = 80
 var serverIp = DEFAULT_IP
     private set
 
-fun main(__u: Array<String>) {
-    println("Server is running5...")
+fun main() {
+    println("Server is running6...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
