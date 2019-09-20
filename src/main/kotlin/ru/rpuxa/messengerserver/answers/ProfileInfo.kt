@@ -7,7 +7,7 @@ open class PublicProfileInfo(
     val name: String,
     val surname: String,
     val birthday: String?,
-    val icon: String?
+    val avatar: String?
 ) : RequestAnswer
 
 class PrivateProfileInfo(
@@ -16,5 +16,5 @@ class PrivateProfileInfo(
     name: String,
     surname: String,
     birthday: String?,
-    icon: String?
-) : PublicProfileInfo(login, name, surname, birthday, icon)
+    avatar: String?
+) : PublicProfileInfo(login, name, surname, birthday, avatar)
