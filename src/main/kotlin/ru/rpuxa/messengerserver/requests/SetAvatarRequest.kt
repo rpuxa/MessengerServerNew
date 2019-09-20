@@ -37,6 +37,7 @@ object SetAvatarRequest : Request("/profile/setAvatar") {
 
         val id = DataBase.getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
         val link = IconStorage.saveAvatar(input, size, id)
+        println("$id    $link")
         DataBase.setAvatar(id, link)
 
         return UploadIconAnswer(link)
