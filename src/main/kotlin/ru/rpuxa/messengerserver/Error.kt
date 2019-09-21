@@ -28,6 +28,9 @@ enum class Error(val code: Int, val text: String? = null) : RequestAnswer {
     // Icons
     ICON_NOT_FOUND(300),
 
-
-
+    // Friends
+    ACCOUNT_IS_NOT_FOUND(400),
+    ALREADY_IN_FRIENDS(401),
+    ALREADY_SENT_REQUEST(402),
+    REQUEST_NOT_FOUND(403),
 }

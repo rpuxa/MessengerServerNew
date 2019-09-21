@@ -59,7 +59,11 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
             PublicInfoRequest,
             SetInfoRequest,
             SetAvatarRequest,
-            GetIconRequest
+            GetIconRequest,
+            GetActions,
+            AnswerOnFriendRequest,
+            GetFriendsRequests,
+            SendFriendRequest
         )
     }
 }
