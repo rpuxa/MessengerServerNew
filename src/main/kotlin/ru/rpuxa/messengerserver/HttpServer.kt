@@ -2,8 +2,10 @@ package ru.rpuxa.messengerserver
 
 import java.net.InetSocketAddress
 import com.sun.net.httpserver.HttpServer
+import kotlinx.coroutines.*
 import ru.rpuxa.messengerserver.requests.*
 import java.lang.Exception
+import java.lang.Runnable
 
 
 class HttpServer(private val ip: String, private val port: Int) : Runnable, AutoCloseable {
@@ -22,22 +24,23 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
         this.server = server
         for (request in ALL_REQUESTS) {
             server.createContext(request.path) {
-                val answer = try {
-                    request.execute(it)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    throw e
-                }
-                if (answer == null) {
-                    it.sendResponseHeaders(404, 0)
-                } else {
-                    it.sendResponseHeaders(200, answer.size.toLong())
-                    val os = it.responseBody
-                    os.write(answer)
-                    os.close()
+                GlobalScope.launch(Dispatchers.IO) {
+                    val answer = try {
+                        request.execute(it)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        throw e
+                    }
+                    if (answer == null) {
+                        it.sendResponseHeaders(404, 0)
+                    } else {
+                        it.sendResponseHeaders(200, answer.size.toLong())
+                        val os = it.responseBody
+                        os.write(answer)
+                        os.close()
+                    }
                 }
             }
-
         }
         server.executor = null
         server.start()
@@ -63,7 +66,8 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
             GetActions,
             AnswerOnFriendRequest,
             GetFriendsRequests,
-            SendFriendRequest
+            SendFriendRequest,
+            GetAllFriendsRequest
         )
     }
 }

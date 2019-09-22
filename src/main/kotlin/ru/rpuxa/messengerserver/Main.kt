@@ -3,14 +3,14 @@ package ru.rpuxa.messengerserver
 import java.io.File
 import kotlin.system.exitProcess
 
-const val DEFAULT_IP = "localhost"//"176.57.217.44"
+const val DEFAULT_IP = "176.57.217.44"
 const val DEFAULT_PORT = 80
 
 var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    println("Server is running8...")
+    println("Server is running9...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {

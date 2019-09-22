@@ -1,6 +1,7 @@
 package ru.rpuxa.messengerserver.requests
 
 import com.sun.net.httpserver.HttpExchange
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -18,12 +19,12 @@ object GetActions : TokenRequest("/actions/get") {
         val timeout = query["timeout"]?.toLong() ?: DEFAULT_TIMEOUT
         val id = DataBase.getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
 
-        val result = runBlocking {
+        val result = runBlocking(Dispatchers.IO) {
             withTimeoutOrNull(timeout) {
                 DataBase.getNewActions(id, lastAction).let {
                     if (it.isNotEmpty()) return@withTimeoutOrNull it
                 }
-                val channel= Channel<Unit>()
+                val channel = Channel<Unit>()
                 try {
                     DataBase.actionChannel[id] = channel
                     channel.receive()

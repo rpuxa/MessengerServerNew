@@ -4,7 +4,7 @@ package ru.rpuxa.messengerserver
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import ru.rpuxa.messengerserver.answers.FriendIdsAnswer
+import ru.rpuxa.messengerserver.answers.IdsAnswer
 import ru.rpuxa.messengerserver.answers.PrivateProfileInfo
 import ru.rpuxa.messengerserver.answers.PublicProfileInfo
 import ru.rpuxa.messengerserver.answers.TokenAnswer
@@ -253,7 +253,7 @@ object DataBase {
             list.add(set.getInt(FRIENDS_ID))
         }
 
-        return FriendIdsAnswer(list)
+        return IdsAnswer(list)
     }
 
     fun answerOnFriendRequest(token: String, friendId: Int, accept: Boolean): RequestAnswer {
@@ -266,7 +266,7 @@ object DataBase {
             return Error.REQUEST_NOT_FOUND
         }
 
-        connection.prepareStatement("DELETE * FROM $FRIENDS_REQUESTS_TABLE$id WHERE $FRIENDS_ID = ?").run {
+        connection.prepareStatement("DELETE FROM $FRIENDS_REQUESTS_TABLE$id WHERE $FRIENDS_ID = ?").run {
             setInt(1, friendId)
             executeUpdate()
         }
@@ -293,11 +293,29 @@ object DataBase {
         return Error.NO_ERROR
     }
 
+    fun getAllFriends(token: String): RequestAnswer {
+        val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
+       val set = statement.executeQuery("SELECT * FROM $FRIENDS_TABLE$id")
+
+        val list = ArrayList<Int>()
+        while (set.next()) {
+            list.add(set.getInt(FRIENDS_ID))
+        }
+
+        return IdsAnswer(list)
+    }
+
     val actionChannel = HashMap<Int, Channel<Unit>>()
 
     private fun onAction(userId: Int) {
         runBlocking {
-            actionChannel[userId]?.send(Unit)
+            val channel = actionChannel[userId]
+            println("channel is $channel")
+            if (channel != null) {
+                println("Waiting")
+                channel.send(Unit)
+                println("DONE!")
+            }
         }
     }
 
