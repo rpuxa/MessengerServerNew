@@ -211,6 +211,10 @@ object DataBase {
         val friendId = friend.getInt(USER_ID)
         val userId = user.getInt(USER_ID)
 
+        if (friendId == userId) {
+            return Error.CANT_SEND_REQUEST_TO_YOURSELF
+        }
+
         if (connection.prepareStatement("SELECT * FROM $FRIENDS_TABLE$friendId WHERE $FRIENDS_ID = ?").run {
                 setInt(1, userId)
                 executeQuery()

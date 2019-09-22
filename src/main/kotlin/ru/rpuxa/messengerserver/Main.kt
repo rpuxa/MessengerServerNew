@@ -12,9 +12,7 @@ var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    GlobalScope.launch {
-        println("Server is running10...")
-    }
+    println("Server is running1...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
@@ -42,7 +40,6 @@ fun main() {
 
             "cleardb" -> {
                 println(if (File(DataBase.PATH).delete()) "Database cleared!" else "Error while clearing database")
-
             }
 
             "exit" -> {

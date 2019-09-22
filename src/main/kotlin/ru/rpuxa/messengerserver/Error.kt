@@ -33,4 +33,5 @@ enum class Error(val code: Int, val text: String? = null) : RequestAnswer {
     ALREADY_IN_FRIENDS(401),
     ALREADY_SENT_REQUEST(402),
     REQUEST_NOT_FOUND(403),
+    CANT_SEND_REQUEST_TO_YOURSELF(404),
 }
