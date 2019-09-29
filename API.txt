@@ -92,7 +92,7 @@ last - айди последнего действия
 
 
 ===Кинуть запрос в друзья===
-/friends/sendRequest?token
+/friends/sendRequest?token&login
 
 Возвращает только ошибку
 
