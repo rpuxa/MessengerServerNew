@@ -116,7 +116,7 @@ last - айди последнего действия
 
 
 ===Получить всех друзей===
-/friends/getAll
+/friends/getAll?token
 
 {ids:[id1, id2,...]}
 
