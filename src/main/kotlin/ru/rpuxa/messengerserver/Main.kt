@@ -10,7 +10,7 @@ var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    println("Server is running3...")
+    println("Server is running4...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
@@ -37,7 +37,7 @@ fun main() {
             }
 
             "cleardb" -> {
-                println(if (File(DataBase.PATH).delete() && File(IconStorage.ICONS_PREFIX).delete()) "Database cleared!" else "Error while clearing database")
+                println(if (File(DataBase.PATH).delete() && File(IconStorage.ICONS_PREFIX).deleteRecursively()) "Database cleared!" else "Error while clearing database")
 
             }
 
