@@ -1,7 +1,5 @@
 package ru.rpuxa.messengerserver
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -12,7 +10,7 @@ var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    println("Server is running1...")
+    println("Server is running2...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
@@ -39,7 +37,8 @@ fun main() {
             }
 
             "cleardb" -> {
-                println(if (File(DataBase.PATH).delete()) "Database cleared!" else "Error while clearing database")
+                println(if (File(DataBase.PATH).delete() && File(IconStorage.ICONS_PREFIX).delete()) "Database cleared!" else "Error while clearing database")
+
             }
 
             "exit" -> {
