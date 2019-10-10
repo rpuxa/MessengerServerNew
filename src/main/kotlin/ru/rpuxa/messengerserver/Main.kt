@@ -10,7 +10,7 @@ var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    println("Server is running7...")
+    println("Server is running9...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
