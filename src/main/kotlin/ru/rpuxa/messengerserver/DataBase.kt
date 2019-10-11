@@ -313,13 +313,7 @@ object DataBase {
 
     private fun onAction(userId: Int) {
         runBlocking {
-            val channel = actionChannel[userId]
-            println("channel is $channel")
-            if (channel != null) {
-                println("Waiting")
-                channel.send(Unit)
-                println("DONE!")
-            }
+            actionChannel[userId]?.send(Unit)
         }
     }
 
@@ -400,6 +394,16 @@ object DataBase {
 
             append(code.toChar())
         }
+    }
+
+    fun removeFriend(token: String, friendId: Int): RequestAnswer {
+        val myId = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
+        connection.prepareStatement("DELETE FROM $FRIENDS_TABLE$myId WHERE $FRIENDS_ID = ?").run {
+            setInt(1, friendId)
+            executeUpdate()
+        }
+
+        return Error.NO_ERROR
     }
 
 

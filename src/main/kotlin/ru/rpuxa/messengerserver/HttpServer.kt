@@ -67,7 +67,8 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
             AnswerOnFriendRequest,
             GetFriendsRequests,
             SendFriendRequest,
-            GetAllFriendsRequest
+            GetAllFriendsRequest,
+            RemoveFriendRequest
         )
     }
 }
