@@ -5,7 +5,7 @@ import ru.rpuxa.messengerserver.DataBase
 import ru.rpuxa.messengerserver.Error
 import ru.rpuxa.messengerserver.RequestAnswer
 
-object GetMessagesRequest : TokenRequest("dialogs/getMessages") {
+object GetMessagesRequest : TokenRequest("/dialogs/getMessages") {
 
     override fun onExecuteWithToken(token: String, query: Map<String, String>, exchange: HttpExchange): RequestAnswer {
         val id = query["id"]?.toIntOrNull() ?: return Error.WRONG_ARGS
