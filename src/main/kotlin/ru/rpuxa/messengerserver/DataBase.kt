@@ -4,13 +4,12 @@ package ru.rpuxa.messengerserver
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import ru.rpuxa.messengerserver.answers.IdsAnswer
-import ru.rpuxa.messengerserver.answers.PrivateProfileInfo
-import ru.rpuxa.messengerserver.answers.PublicProfileInfo
-import ru.rpuxa.messengerserver.answers.TokenAnswer
+import ru.rpuxa.messengerserver.answers.*
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.sql.*
+import kotlin.math.max
+import kotlin.math.min
 
 object DataBase {
 
@@ -39,6 +38,13 @@ object DataBase {
     private const val FRIENDS_ID = "fr_id"
 
     private const val FRIENDS_REQUESTS_TABLE = "frReq"
+    private const val DIALOG_TABLE = "dialog"
+
+    private const val DIALOG_ID = "id"
+    private const val DIALOG_RANDOM_UUID = "uuid"
+    private const val DIALOG_TEXT = "text"
+    private const val DIALOG_TIME = "time"
+    private const val DIALOG_SENDER = "sender"
 
     private lateinit var connection: Connection
     private lateinit var statement: Statement
@@ -116,8 +122,12 @@ object DataBase {
     fun getPrivateInfo(token: String): RequestAnswer {
         val set = userByToken(token) ?: return Error.UNKNOWN_TOKEN
 
+        val id = set.getInt(USER_ID)
+        val lastActionId = statement.executeQuery("SELECT * FROM $ACTIONS_TABLE$id ORDER BY $ACTION_ID DESC LIMIT 1")
+
         return PrivateProfileInfo(
-            set.getInt(USER_ID),
+            id,
+            if (lastActionId.next()) lastActionId.getInt(ACTION_ID) else 0,
             set.getString(LOGIN),
             set.getString(NAME),
             set.getString(SURNAME),
@@ -236,12 +246,7 @@ object DataBase {
             executeUpdate()
         }
 
-        connection.prepareStatement("INSERT INTO $ACTIONS_TABLE$friendId ($ACTION_TYPE) VALUES (?)").run {
-            setInt(1, ActionType.FRIEND_REQUEST_RECEIVED.id)
-            executeUpdate()
-        }
-
-        onAction(friendId)
+        onAction(friendId, ActionType.FRIEND_REQUEST_RECEIVED)
 
         return Error.NO_ERROR
     }
@@ -286,12 +291,18 @@ object DataBase {
                 executeUpdate()
             }
 
-            connection.prepareStatement("INSERT INTO $ACTIONS_TABLE$friendId ($ACTION_TYPE) VALUES (?)").run {
-                setInt(1, ActionType.FRIEND_REQUEST_ACCEPTED.id)
-                executeUpdate()
-            }
+            statement.execute(
+                """CREATE TABLE IF NOT EXISTS $DIALOG_TABLE${min(id, friendId)}_${max(friendId, id)} (
+  $DIALOG_ID     INTEGER PRIMARY KEY AUTOINCREMENT,
+  $DIALOG_RANDOM_UUID   TEXT,
+  $DIALOG_TEXT   TEXT,
+  $DIALOG_TIME   BIGINT,
+  $DIALOG_SENDER INTEGER
+);"""
+            )
 
-            onAction(friendId)
+
+            onAction(friendId, ActionType.FRIEND_REQUEST_ACCEPTED)
         }
 
         return Error.NO_ERROR
@@ -299,7 +310,7 @@ object DataBase {
 
     fun getAllFriends(token: String): RequestAnswer {
         val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
-       val set = statement.executeQuery("SELECT * FROM $FRIENDS_TABLE$id")
+        val set = statement.executeQuery("SELECT * FROM $FRIENDS_TABLE$id")
 
         val list = ArrayList<Int>()
         while (set.next()) {
@@ -309,9 +320,69 @@ object DataBase {
         return IdsAnswer(list)
     }
 
+    fun sendMessage(token: String, toId: Int, text: String, randomUUID: String): RequestAnswer {
+        val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
+        val table = "$DIALOG_TABLE${min(id, toId)}_${max(id, toId)}"
+        fun messageWithRandomUUID() =
+            connection.prepareStatement("SELECT * FROM $table WHERE $DIALOG_RANDOM_UUID = ?").run {
+                setString(1, randomUUID)
+                executeQuery()
+            }
+
+        val set = messageWithRandomUUID()
+
+        if (set.next()) {
+            return SendMessageAnswer(set.getInt(DIALOG_ID))
+        }
+
+        connection.prepareStatement("INSERT INTO $table ($DIALOG_RANDOM_UUID, $DIALOG_TEXT, $DIALOG_TIME, $DIALOG_SENDER) VALUES (?, ?, ?, ?)")
+            .run {
+                setString(1, randomUUID)
+                setString(2, text)
+                setLong(3, System.currentTimeMillis())
+                setInt(4, id)
+                executeUpdate()
+            }
+
+
+        onAction(toId, ActionType.NEW_MESSAGE)
+
+        return SendMessageAnswer(messageWithRandomUUID().getInt(DIALOG_ID))
+    }
+
+    fun getMessages(token: String, toId: Int, messageId: Int, limit: Int): RequestAnswer {
+        val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
+        val table = "$DIALOG_TABLE${min(id, toId)}_${max(id, toId)}"
+        val set = connection.prepareStatement("SELECT * FROM $table WHERE $DIALOG_ID <= ? AND $DIALOG_ID > ?").run {
+            setInt(1, messageId)
+            setInt(2, messageId - limit)
+            executeQuery()
+        }
+
+        val array = MessagesAnswer()
+
+        while (set.next()) {
+            array.add(
+                Message(
+                    set.getInt(DIALOG_ID),
+                    set.getString(DIALOG_RANDOM_UUID),
+                    set.getString(DIALOG_TEXT),
+                    set.getInt(DIALOG_SENDER)
+                )
+            )
+        }
+
+        return array
+    }
+
     val actionChannel = HashMap<Int, Channel<Unit>>()
 
-    private fun onAction(userId: Int) {
+    private fun onAction(userId: Int, type: ActionType) {
+        connection.prepareStatement("INSERT INTO $ACTIONS_TABLE$userId ($ACTION_TYPE) VALUES (?)").run {
+            setInt(1, type.id)
+            executeUpdate()
+        }
+
         runBlocking {
             actionChannel[userId]?.send(Unit)
         }

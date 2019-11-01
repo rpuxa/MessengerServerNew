@@ -12,6 +12,7 @@ open class PublicProfileInfo(
 
 class PrivateProfileInfo(
     val id: Int,
+    val lastActionId:Int,
     login: String,
     name: String,
     surname: String,

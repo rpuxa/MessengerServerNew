@@ -54,7 +54,7 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
 
     companion object {
 
-        private val ALL_REQUESTS = arrayOf(
+        private val ALL_REQUESTS = setOf(
             WelcomeRequest,
             RegisterRequest,
             LoginRequest,
@@ -68,7 +68,9 @@ class HttpServer(private val ip: String, private val port: Int) : Runnable, Auto
             GetFriendsRequests,
             SendFriendRequest,
             GetAllFriendsRequest,
-            RemoveFriendRequest
+            RemoveFriendRequest,
+            SendMessageRequest,
+            GetMessagesRequest
         )
     }
 }

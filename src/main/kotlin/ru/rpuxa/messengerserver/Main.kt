@@ -3,14 +3,14 @@ package ru.rpuxa.messengerserver
 import java.io.File
 import kotlin.system.exitProcess
 
-const val DEFAULT_IP = "176.57.217.44"
-const val DEFAULT_PORT = 80
+private const val DEFAULT_IP = "62.109.3.22"
+private const val DEFAULT_PORT = 1488
 
 var serverIp = DEFAULT_IP
     private set
 
 fun main() {
-    println("Server is running9...")
+    println("Server is running0...")
     var server = HttpServer(DEFAULT_IP, DEFAULT_PORT)
 
     while (true) {
@@ -38,7 +38,6 @@ fun main() {
 
             "cleardb" -> {
                 println(if (File(DataBase.PATH).delete() && File(IconStorage.ICONS_PREFIX).deleteRecursively()) "Database cleared!" else "Error while clearing database")
-
             }
 
             "exit" -> {
