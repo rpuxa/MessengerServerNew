@@ -130,5 +130,17 @@ last - айди последнего действия
 
 
 
+===Отправить сообщение===
+/dialogs/sendMessage?token&id=<кому отправляем>&text&randomUUID
+
+{id: <Айди сообщения>}
+
+
+===Получить сообщения===
+/dialogs/getMessages?token&id=<айди человека, с кем общаемся>&messageId&limit
+
+{[id, randomUUID, text, sender]}
+
+
 
 

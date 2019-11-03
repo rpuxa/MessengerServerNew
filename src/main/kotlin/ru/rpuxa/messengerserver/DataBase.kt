@@ -353,9 +353,9 @@ object DataBase {
     fun getMessages(token: String, toId: Int, messageId: Int, limit: Int): RequestAnswer {
         val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
         val table = "$DIALOG_TABLE${min(id, toId)}_${max(id, toId)}"
-        val set = connection.prepareStatement("SELECT * FROM $table WHERE $DIALOG_ID <= ? AND $DIALOG_ID > ?").run {
+        val set = connection.prepareStatement("SELECT * FROM $table WHERE $DIALOG_ID >= ? AND $DIALOG_ID < ?").run {
             setInt(1, messageId)
-            setInt(2, messageId - limit)
+            setInt(2, messageId + limit)
             executeQuery()
         }
 
