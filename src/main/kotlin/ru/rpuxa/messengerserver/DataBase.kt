@@ -123,11 +123,9 @@ object DataBase {
         val set = userByToken(token) ?: return Error.UNKNOWN_TOKEN
 
         val id = set.getInt(USER_ID)
-        val lastActionId = statement.executeQuery("SELECT * FROM $ACTIONS_TABLE$id ORDER BY $ACTION_ID DESC LIMIT 1")
 
         return PrivateProfileInfo(
             id,
-            if (lastActionId.next()) lastActionId.getInt(ACTION_ID) else 0,
             set.getString(LOGIN),
             set.getString(NAME),
             set.getString(SURNAME),
@@ -373,6 +371,13 @@ object DataBase {
         }
 
         return array
+    }
+
+    fun getLastActionId(token: String): RequestAnswer {
+        val id = getIdByToken(token) ?: return Error.UNKNOWN_TOKEN
+        val lastActionId = statement.executeQuery("SELECT * FROM $ACTIONS_TABLE$id ORDER BY $ACTION_ID DESC LIMIT 1")
+        val result = if (!lastActionId.next()) lastActionId.getInt(ACTION_ID) else -1
+        return LastActionIdAnswer(result)
     }
 
     val actionChannel = HashMap<Int, Channel<Unit>>()

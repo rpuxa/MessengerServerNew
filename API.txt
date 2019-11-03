@@ -142,5 +142,9 @@ last - айди последнего действия
 {[id, randomUUID, text, sender]}
 
 
+===Получить последний action id===
+/getLastActionId?token
+
+{id:<id>}
 
 
